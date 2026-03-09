@@ -148,7 +148,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   if (email) updateData.email = email
 
   try {
-    const updatedUser = await db.update(users).set(updateData).where(eq(users.id, user.id)).returning()
+    const updatedUser = await db.update(users).set(updateData).where(eq(users.id, user.id)).returning(userWithoutPassword)
 
     logger.info(`profile updated for user id: ${user.id}`)
 
@@ -193,7 +193,7 @@ export const changePassword = async (req: Request, res: Response) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "New password must be different from current password")
   }
 
-  const hashedPassword = await bcrypt.hash(oldPassword, 10)
+  const hashedPassword = await bcrypt.hash(newPassword, 10)
 
   await db.update(users).set({ password: hashedPassword }).where(eq(users.id, user.id))
 
